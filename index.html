@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+
+<!-- DISABLE ZOOM (APP FEEL) -->
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+<title>Calculator Pro</title>
+
+<style>
+:root {
+    --glass: rgba(255,255,255,0.12);
+    --dark: rgba(0,0,0,0.55);
+    --accent: #00ffd5;
+    --orange: #ff9500;
+    --green: #00c896;
+    --red: #ff3b3b;
+}
+
+* {
+    box-sizing: border-box;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+body {
+    margin: 0;
+    height: 100vh;
+    background: black;
+    overflow: hidden;
+}
+
+/* BACKGROUND VIDEO */
+video {
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    z-index: -2;
+}
+
+.overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.6);
+    z-index: -1;
+}
+
+/* APP CONTAINER */
+.app {
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* 🔒 FIXED SIZE CALCULATOR */
+.calculator {
+    width: 360px;
+    height: 640px; /* FIXED HEIGHT */
+    background: var(--glass);
+    backdrop-filter: blur(20px);
+    border-radius: 24px;
+    padding: 20px;
+    box-shadow: 0 30px 60px rgba(0,0,0,0.6);
+    display: flex;
+    flex-direction: column;
+}
+
+/* DISPLAY */
+.display {
+    background: var(--dark);
+    color: var(--accent);
+    font-size: 2.1rem;
+    padding: 18px;
+    border-radius: 14px;
+    text-align: right;
+    margin-bottom: 10px;
+    overflow-x: auto;
+    flex-shrink: 0;
+}
+
+/* HISTORY */
+.clear-history {
+    font-size: 0.75rem;
+    color: #aaa;
+    text-align: right;
+    cursor: pointer;
+    margin-bottom: 6px;
+}
+
+.history {
+    height: 120px; /* FIXED HISTORY AREA */
+    overflow-y: auto;
+    margin-bottom: 10px;
+    padding: 10px;
+    border-radius: 12px;
+    background: rgba(0,0,0,0.35);
+    flex-shrink: 0;
+}
+
+.history-item {
+    font-size: 0.9rem;
+    color: #ccc;
+    margin-bottom: 6px;
+}
+
+.history-item span {
+    color: var(--accent);
+}
+
+/* BUTTONS (FILL REMAINING SPACE) */
+.buttons {
+    margin-top: auto;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+}
+
+button {
+    height: 56px;
+    border: none;
+    border-radius: 14px;
+    font-size: 1.1rem;
+    color: white;
+    background: rgba(255,255,255,0.18);
+    cursor: pointer;
+    transition: transform 0.1s ease, background 0.15s ease;
+}
+
+button:active {
+    transform: scale(0.92);
+}
+
+.operator { background: var(--orange); }
+.equal { background: var(--green); grid-column: span 2; }
+.clear { background: var(--red); }
+
+/* SMALL PHONES SAFETY */
+@media (max-height: 640px) {
+    .calculator {
+        transform: scale(0.92);
+    }
+}
+</style>
+</head>
+
+<body>
+
+<video autoplay muted loop playsinline>
+    <source src="bg.mp4" type="video/mp4">
+</video>
+<div class="overlay"></div>
+
+<div class="app">
+    <div class="calculator">
+
+        <div class="display" id="display">0</div>
+
+        <div class="clear-history" onclick="clearHistory()">Clear History</div>
+        <div class="history" id="history"></div>
+
+        <div class="buttons">
+            <button class="clear" onclick="clearDisplay()">C</button>
+            <button onclick="backspace()">⌫</button>
+            <button onclick="append('%')">%</button>
+            <button class="operator" onclick="append('/')">÷</button>
+
+            <button onclick="append('7')">7</button>
+            <button onclick="append('8')">8</button>
+            <button onclick="append('9')">9</button>
+            <button class="operator" onclick="append('*')">×</button>
+
+            <button onclick="append('4')">4</button>
+            <button onclick="append('5')">5</button>
+            <button onclick="append('6')">6</button>
+            <button class="operator" onclick="append('-')">−</button>
+
+            <button onclick="append('1')">1</button>
+            <button onclick="append('2')">2</button>
+            <button onclick="append('3')">3</button>
+            <button class="operator" onclick="append('+')">+</button>
+
+            <button onclick="append('0')">0</button>
+            <button onclick="append('.')">.</button>
+            <button class="equal" onclick="calculate()">=</button>
+        </div>
+
+    </div>
+</div>
+
+<script>
+const display = document.getElementById("display");
+const historyBox = document.getElementById("history");
+
+function append(val) {
+    if (display.innerText === "0") display.innerText = "";
+    display.innerText += val;
+}
+
+function clearDisplay() {
+    display.innerText = "0";
+}
+
+function backspace() {
+    display.innerText = display.innerText.slice(0, -1) || "0";
+}
+
+function calculate() {
+    try {
+        const exp = display.innerText;
+        const res = eval(exp);
+        display.innerText = res;
+
+        const item = document.createElement("div");
+        item.className = "history-item";
+        item.innerHTML = `${exp} = <span>${res}</span>`;
+        historyBox.prepend(item);
+    } catch {
+        display.innerText = "Error";
+    }
+}
+
+function clearHistory() {
+    historyBox.innerHTML = "";
+}
+</script>
+
+</body>
+</html>
